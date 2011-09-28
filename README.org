@@ -1,0 +1,13 @@
+#+title: common-lisp interpretation to grammar-of-graphics
+
+
+Incomplete implementation of Wilkinson grammar of graphics.
+
+Provides:
+- Generic definitions in terms of classes, generic functions, helper
+  functions and macros
+- Practical implementation that uses /gnuplot-interface/
+  
+  
+The architecture and public interface of this package are subject to
+change.
