@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-09-28 22:49:26 gg-gnuplot-interface.lisp>
+;; Time-stamp: <2011-09-29 16:54:11EDT gg-gnuplot-interface.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -19,7 +19,8 @@
 
 (in-package :cl-gg)
 
-(defmethod gg-create-plot-command ((self gg-plot-components))
+(defmethod gg-create-plot-command ((type (eql :gnuplot))
+				   (self gg-plot-components))
   (let* ((elements (elements self))
 	 (legend (first (legends self)))
 	 (strings
@@ -38,18 +39,18 @@
 
 
 (defmethod render-element ((type (eql :gnuplot)) (element gg-point))
-  (format nil "~a" (data-access-string (data element))))
+  (format nil "~a" (data-access-string :gnuplot (data element))))
 
 (defmethod render-element ((type (eql :gnuplot)) (element gg-line))
-  (format nil "~a with lines" (data-access-string (data element))))
+  (format nil "~a with lines" (data-access-string :gnuplot (data element))))
 
-(defmethod data-access-string ((data column))
+(defmethod data-access-string ((type (eql :gnuplot)) (data column))
   (let ((source (source data))
 	(index-info (column-index data)))
     (assert (typep source 'pathname)
 	    ()
 	    "Data source must be a path")
-    (format nil "'~a' using ~{~a:~a~}" source index-info)))
+    (format nil "'~a' using ~{~a:~a~}" source (mapcar #'1+ index-info))))
     
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defmethod set-gnuplot-labels ((container gg-plot-components))
@@ -126,20 +127,21 @@ the title) and cleaning up"
 (defmacro with-log-scales (container &body body)
   `(let* ((scales (scales ,container))
 	  (string
-	   (loop for scale in scales
-	      when (typep scale 'log-scale)
-	      collect (case (dim scale)
-			(0 "x")
-			(1 "y")
-			(t (error "Invalid dimension"))))))
+	   (apply #'concatenate 'string
+		  (loop for scale in scales
+		     when (typep scale 'log-scale)
+		     collect (case (dim scale)
+			       (0 "x")
+			       (1 "y")
+			       (t (error "Invalid dimension")))))))
      (if string
 	 (unwind-protect
-	       (progn
-		 (gnuplot-interface:gnuplot-command
-		  (format nil "set logscale ~a" string))
-		 ,@body)
-	    (gnuplot-interface:gnuplot-command
-	     (format nil "unset logscale ~a" string)))
+	      (progn
+		(gnuplot-interface:gnuplot-command
+		 (format nil "set logscale ~a" string))
+		,@body)
+	   (gnuplot-interface:gnuplot-command
+	    (format nil "unset logscale ~a" string)))
 	 ,@body)))
 
 (define-test with-log-scales
@@ -150,13 +152,14 @@ the title) and cleaning up"
     (add-scale container y-scale)
     (assert-expands
      '(let* ((scales (scales container))
-	    (string
-	     (loop for scale in scales
-		when (typep scale 'log-scale)
-		collect (case (dim scale)
-			  (0 "x")
-			  (1 "y")
-			  (t (error "Invalid dimension"))))))
+	     (string
+	      (apply #'concatenate 'string
+		     (loop for scale in scales
+			when (typep scale 'log-scale)
+			collect (case (dim scale)
+				  (0 "x")
+				  (1 "y")
+				  (t (error "Invalid dimension")))))))
        (if string
 	   (unwind-protect
 		(progn
@@ -166,7 +169,7 @@ the title) and cleaning up"
 	     (gnuplot-interface:gnuplot-command
 	      (format nil "unset logscale ~a" string)))
 	   T))
-     (with-log-scales container t)))
+     (with-log-scales container t))))
 
 (defmethod make-range-string ((type (eql :gnuplot)) (container gg-plot-components))
   (let* ((scales (scales container))
@@ -176,25 +179,26 @@ the title) and cleaning up"
 		 (if x-scale
 		     (format nil "[~a:~a] "
 			     (aif (scale-min x-scale)
-				  it "")
+				  it "*")
 			     (aif (scale-max x-scale)
-				  it ""))
-		     "")
+				  it "*"))
+		     "[] ")
 		 (if y-scale
 		     (format nil "[~a:~a] "
 			     (aif (scale-min y-scale)
 				  it "")
 			     (aif (scale-max y-scale)
 				  it ""))
-		     ""))))
-(define-test with-log-scales
+		     "[] "))))
+
+(define-test make-range-string
   (let* ((x-scale (make-interval-scale 0 :min 0.2e-8 :max 1.3e-8))
 	 (y-scale (make-log-scale 1))
 	 (container (make-gg-plot-components-container)))
     (add-scale container x-scale)
     (add-scale container y-scale)
     (assert-equal
-     "[2.0E-9:1.3E-8] [:] "
+     "[2.e-9:1.3e-8] [:] "
      (make-range-string :gnuplot container))))
  
 #|
@@ -212,7 +216,7 @@ the title) and cleaning up"
       (x-axis (make-axis-guide "Time (sec)"))
       (y-axis (make-axis-guide "y"))
       (text (make-text-guide :title "Example plot"))
-      (x-scale (make-interval-scale 0 :min 0.2e-8 :max 1.3e-8))
+      (x-scale (make-interval-scale 0))
       (y-scale (make-log-scale 1)))
   (let ((e1 (make-point-element dat1))
 	(e2 (make-line-element dat2))
@@ -231,6 +235,6 @@ the title) and cleaning up"
 	  (gnuplot-interface:gnuplot-command
 	   (format nil "plot ~a ~{~a~^,~}"
 		   (make-range-string :gnuplot container)
-		   (gg-create-plot-command container))))))))
+		   (gg-create-plot-command :gnuplot container))))))))
 
 |#

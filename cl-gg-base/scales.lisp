@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-09-28 22:20:54 scales.lisp>
+;; Time-stamp: <2011-09-29 15:37:40EDT scales.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -35,7 +35,7 @@
   (:documentation "Interval scale"))
 
 (defun make-interval-scale (dim &key min max)
-  (let ((obj (make-instance 'log-scale)))
+  (let ((obj (make-instance 'interval-scale)))
     (setf (dim obj) dim)
     (when min
       (setf (scale-min obj) min))

@@ -1,0 +1,13 @@
+2011-09-29  Mirko Vukovic  <Mirko Vukovic <mirko.vukovic@us.tel.com>>
+
+	* gnuplot/gg-gnuplot-interface.lisp (with-log-scales): Fixed error
+	in program.  Now it passes a string to the "set logscale" instead
+	of a list
+	(data-access-string): Added first argument the renderer, such as
+	:gnuplot
+	(render-element): Modified added :gnuplot renderer type to
+	`data-access-string'
+
+	* cl-gg-base/scales.lisp (make-interval-scale): Fixed bug that
+	created a 'log-scale instead of 'interval-scale
+
