@@ -11,7 +11,10 @@
 	    :pathname #p"cl-gg-base/"
 	    :components ((:file "gg-data")
 			 (:file "gg-algebra")
-			 (:file "gg-plot-elements")))
+			 (:file "guides")
+			 (:file "elements")
+			 (:file "scales")
+			 (:file "plot-container")))
    (:module "gg-gnuplot"
 	    :pathname #p"gnuplot/"
 	    :depends-on ("cl-gg-base")
@@ -20,6 +23,7 @@
 	    :depends-on ("cl-gg-init")
 	    :components ((:file "init-testing"))))
   :depends-on (:gnuplot-interface
-	       :lisp-unit))
+	       :lisp-unit
+	       :anaphora))
 
 

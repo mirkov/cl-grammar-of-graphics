@@ -3,6 +3,9 @@
 (defpackage #:cl-grammar-of-graphics
   (:nicknames :cl-gg)
   (:use #:cl :gnuplot-interface :lisp-unit)
+  (:import-from :anaphora
+		:it
+		:aif)
   (:export :make-column-data
 	   :make-legend-guide
 	   :make-axis-guide
