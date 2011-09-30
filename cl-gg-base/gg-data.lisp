@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-09-28 12:22:16EDT gg-data.lisp>
+;; Time-stamp: <2011-09-29 21:51:20 gg-data.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -30,9 +30,23 @@
   (:documentation "Store data information.  This is a base class, not
   to be used directly"))
 
+(defmethod print-object ((self gg-data) stream)
+  (print-unreadable-object (self stream :type t :identity t)))
+
+(defmethod describe-object ((self gg-data) stream)
+  (format stream "A grammar of graphics data object of type ~a
+It's name is ~a
+The data source is ~a
+It's units, if any are ~a~%"
+	  (class-name (class-of self))
+	  (name self) (source self) (unit self)))
+
 (defclass column (gg-data)
   ((column-index :accessor column-index))
   (:documentation "Access column-index for columnar data"))
+
+(defmethod describe-object :after  ((self gg-data) stream)
+  (format stream "The data column is ~a" (column-index self)))
 
 (defun make-column-data (source column-index &optional name unit)
   (let ((dat (make-instance 'column)))

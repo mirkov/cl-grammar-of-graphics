@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-09-28 22:04:35 plot-container.lisp>
+;; Time-stamp: <2011-09-29 22:17:27 plot-container.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -49,8 +49,10 @@ corresponds to the following:
 - (optional) z-axis, if the plot is 3 dimensional
 - horizontal plots
 - vertical plots")
-   (text :accessor text
-	 :documentation "List of all text elements in plot")
+   (title :accessor title
+	 :documentation "Graphics title")
+   (footnote :accessor footnote
+	 :documentation "Graphics footnote")
    (scales :accessor scales
 	   :documentation "Scale information"
 	   :initform (list)))
@@ -74,3 +76,9 @@ The contents of this container are used to generate the plot"))
 
 (defmethod add-scale ((self gg-plot-components) (scale scale))
   (push scale (scales self)))
+
+(defmethod add-title ((self gg-plot-components) (title title-text))
+  (push title (title self)))
+
+(defmethod add-footnote ((self gg-plot-components) (footnote footnote-text))
+  (push footnote (footnote self)))

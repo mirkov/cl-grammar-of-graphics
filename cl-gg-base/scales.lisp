@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-09-29 15:37:40EDT scales.lisp>
+;; Time-stamp: <2011-09-29 22:15:01 scales.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -25,6 +25,16 @@
 	:documentation "Identify applicable dimension - integer from 0 up"))
   (:documentation "Base class for storing scale information"))
 
+(defmethod print-object ((self scale) stream)
+  (print-unreadable-object (self stream :type t :identity t)
+    (class-name (class-of self))))
+
+(defmethod describe-object ((self scale) stream)
+  (format stream "A grammar of graphics scale object
+It is of class ~a
+It's associate with dimension ~a~%"
+	  (class-name (class-of self)) (dim self)))
+
 (defclass interval-scale (scale)
   ((min :accessor scale-min
 	:initform nil
@@ -33,6 +43,12 @@
 	:initform nil
 	:documentation "Scale maximum. If nil, use the data maximum"))
   (:documentation "Interval scale"))
+
+(defmethod describe-object :after ((self interval-scale) stream)
+  (format stream "The minimum value is ~a
+The maximum value is ~a~%"
+	  (aif (min self) it "undefined")
+	  (aif (max self) it "undefined")))
 
 (defun make-interval-scale (dim &key min max)
   (let ((obj (make-instance 'interval-scale)))
@@ -50,6 +66,10 @@
   (:documentation "Logarithmic scale
 
 Wilkinson 6.2.4.1"))
+
+(defmethod describe-object :after ((self interval-scale) stream)
+  (format stream "The logarithm base is ~a~%"
+	  (aif (base self) it "undefined")))
 
 (defun make-log-scale (dim &key base min max)
   (let ((obj (make-instance 'log-scale)))

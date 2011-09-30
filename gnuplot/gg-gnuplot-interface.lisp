@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-09-29 16:54:11EDT gg-gnuplot-interface.lisp>
+;; Time-stamp: <2011-09-29 21:43:48 gg-gnuplot-interface.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -38,10 +38,10 @@
     strings))
 
 
-(defmethod render-element ((type (eql :gnuplot)) (element gg-point))
+(defmethod render-element ((type (eql :gnuplot)) (element point-element))
   (format nil "~a" (data-access-string :gnuplot (data element))))
 
-(defmethod render-element ((type (eql :gnuplot)) (element gg-line))
+(defmethod render-element ((type (eql :gnuplot)) (element line-element))
   (format nil "~a with lines" (data-access-string :gnuplot (data element))))
 
 (defmethod data-access-string ((type (eql :gnuplot)) (data column))

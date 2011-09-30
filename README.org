@@ -1,13 +1,24 @@
 #+title: common-lisp interpretation to grammar-of-graphics
 
 
-Incomplete implementation of Wilkinson grammar of graphics.
+Incomplete implementation of Wilkinson grammar of graphics, and
+graphics drivers based on it.
 
 Provides:
-- Generic definitions in terms of classes, generic functions, helper
-  functions and macros
-- Practical implementation that uses /gnuplot-interface/
-  
+- Implementation of grammar elements in terms of =CLOS= classes
+  - Very incomplete
+- Definitions of graphic driver interfaces in terms of =CLOS= classes
+  and generic functions
+  - Not implemented yet
+- Graphic driver for =gnuplot=
+  - Uses /gnuplot-interface/ package
+  - Very incomplete
+    
+    
+Development strategy:
+- I implement features based on my current needs
+- Current goal is to provide 2D plotting utilities for data stored in
+  files
   
 The architecture and public interface of this package are subject to
 change.

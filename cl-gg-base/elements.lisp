@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-09-28 21:31:04 elements.lisp>
+;; Time-stamp: <2011-09-29 21:41:44 elements.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -24,22 +24,39 @@
   ((data :accessor data))
   (:documentation "Definition of a plot element"))
 
-(defclass gg-point (gg-element)
+(defmethod print-object ((self gg-element) stream)
+  (print-unreadable-object (self stream :type t :identity t)))
+
+(defmethod describe-object ((self gg-element) stream)
+  (format stream "Grammar of Graphics Element object~%")
+  (if (slot-boundp self 'data)
+      (format stream "The data slot value is" (data self))))
+
+(defclass point-element (gg-element)
   ()
   (:documentation "gg-element of type point"))
 
+(defmethod describe-object ((self point-element) stream)
+  (format stream "Grammar of Graphics point element object~%")
+  (if (slot-boundp self 'data)
+      (format stream "The data slot value is" (data self))))
+
 (defun make-point-element (data)
-  (let ((el (make-instance 'gg-point)))
+  (let ((el (make-instance 'point-element)))
     (setf (data el) data)
     el))
 
-(defclass gg-line (gg-element)
+(defclass line-element (gg-element)
   ()
   (:documentation "gg-element of type line"))
 
+(defmethod describe-object ((self line-element) stream)
+  (format stream "Grammar of Graphics line element object~%")
+  (if (slot-boundp self 'data)
+      (format stream "The data slot value is" (data self))))
 
 (defun make-line-element (data)
-  (let ((el (make-instance 'gg-line)))
+  (let ((el (make-instance 'line-element)))
     (setf (data el) data)
     el))
 

@@ -15,9 +15,11 @@
 			 (:file "elements")
 			 (:file "scales")
 			 (:file "plot-container")))
+   (:module "gg-interface-declarations"
+	    :depends-on ("cl-gg-base"))
    (:module "gg-gnuplot"
 	    :pathname #p"gnuplot/"
-	    :depends-on ("cl-gg-base")
+	    :depends-on ("gg-interface-declarations")
 	    :components ((:file "gg-gnuplot-interface")))
    (:module "testing"
 	    :depends-on ("cl-gg-init")
