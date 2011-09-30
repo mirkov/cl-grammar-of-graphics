@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-09-29 22:17:27 plot-container.lisp>
+;; Time-stamp: <2011-09-30 12:41:22EDT plot-container.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -41,21 +41,18 @@
 	    depends on the graphics engine.  It can be a function")
    (axes :accessor axes
 	 :initform (list)
-	 :documentation "List of all axes specifications The ordering
-of the axes specification in the list matters.  The ordering
-corresponds to the following:
-- x-axis
-- y-axis
-- (optional) z-axis, if the plot is 3 dimensional
-- horizontal plots
-- vertical plots")
+	 :documentation "List of all axes specifications")
    (title :accessor title
 	 :documentation "Graphics title")
    (footnote :accessor footnote
 	 :documentation "Graphics footnote")
    (scales :accessor scales
 	   :documentation "Scale information"
-	   :initform (list)))
+	   :initform (list))
+   (transformations :accessor transformations
+		    :documentation "List of transformations associated
+		    with a plot"
+		    :initform (list)))
   (:documentation "Container that stores all the components of the plot
 The contents of this container are used to generate the plot"))
 
@@ -77,8 +74,10 @@ The contents of this container are used to generate the plot"))
 (defmethod add-scale ((self gg-plot-components) (scale scale))
   (push scale (scales self)))
 
-(defmethod add-title ((self gg-plot-components) (title title-text))
-  (push title (title self)))
-
 (defmethod add-footnote ((self gg-plot-components) (footnote footnote-text))
   (push footnote (footnote self)))
+
+(defmethod add-transformation ((self gg-plot-components) (transformation transformation))
+  (push transformation (transformations self)))
+
+

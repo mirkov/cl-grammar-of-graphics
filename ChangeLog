@@ -1,3 +1,17 @@
+2011-09-30  Mirko Vukovic  <Mirko Vukovic <mirko.vukovic@us.tel.com>>
+
+	* gnuplot/gg-gnuplot-interface.lisp (gg-create-plot-command)
+	(render-element, data-access-string): Added the plot container as
+	the third required argument.
+
+	* cl-gg-base/elements.lisp (render-element): Added container as
+	third required argument
+
+	* cl-gg-base/guides.lisp (axis): Added `dim' slot
+	(make-axis-guide): Changed calling convention to accept required
+	argument dim
+
+
 2011-09-29  Mirko Vukovic  <mirko.vukovic@us.tel.com>
 
 	* cl-gg-base/plot-container.lisp (gg-plot-components): Changed the

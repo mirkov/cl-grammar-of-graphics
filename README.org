@@ -18,7 +18,14 @@ Provides:
 Development strategy:
 - I implement features based on my current needs
 - Current goal is to provide 2D plotting utilities for data stored in
-  files
+  files using =gnuplot= as the plotting engine
   
 The architecture and public interface of this package are subject to
 change.
+
+
+The main references for this software are:
+- Grammar of Graphics by Leland Wilkinson defines the grammar
+- ggplot http://had.co.nz/ggplot/ by Hadley Wickham uses (and extends
+  Wilkinson's grammar) to implement R's ggplot plotting package
+- gnuplot: http://www.gnuplot.info/

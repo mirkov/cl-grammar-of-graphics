@@ -14,6 +14,7 @@
 			 (:file "guides")
 			 (:file "elements")
 			 (:file "scales")
+			 (:file "transformations")
 			 (:file "plot-container")))
    (:module "gg-interface-declarations"
 	    :depends-on ("cl-gg-base"))

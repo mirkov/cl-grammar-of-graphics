@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-09-29 21:41:44 elements.lisp>
+;; Time-stamp: <2011-09-30 12:19:34EDT elements.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -30,7 +30,7 @@
 (defmethod describe-object ((self gg-element) stream)
   (format stream "Grammar of Graphics Element object~%")
   (if (slot-boundp self 'data)
-      (format stream "The data slot value is" (data self))))
+      (format stream "The data slot value is ~a" (data self))))
 
 (defclass point-element (gg-element)
   ()
@@ -39,7 +39,7 @@
 (defmethod describe-object ((self point-element) stream)
   (format stream "Grammar of Graphics point element object~%")
   (if (slot-boundp self 'data)
-      (format stream "The data slot value is" (data self))))
+      (format stream "The data slot value is ~a" (data self))))
 
 (defun make-point-element (data)
   (let ((el (make-instance 'point-element)))
@@ -53,7 +53,7 @@
 (defmethod describe-object ((self line-element) stream)
   (format stream "Grammar of Graphics line element object~%")
   (if (slot-boundp self 'data)
-      (format stream "The data slot value is" (data self))))
+      (format stream "The data slot value is ~a" (data self))))
 
 (defun make-line-element (data)
   (let ((el (make-instance 'line-element)))
@@ -61,7 +61,10 @@
     el))
 
 
-(defgeneric render-element (type element)
+(defgeneric render-element (type element container)
   (:documentation "Using information in `element', a subclass of
 gg-element create the commands appropriate for the plotting system
-specified by the symbol/keyword `type'"))
+specified by the symbol/keyword `type'
+
+`container' is `element's container.  It is used to obtain access to
+other information as it may be needed"))

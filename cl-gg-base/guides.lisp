@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-09-29 22:09:45 guides.lisp>
+;; Time-stamp: <2011-09-30 11:00:48EDT guides.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -37,9 +37,9 @@ other label specification"))
 (defmethod describe-object ((self guide) stream)
   (format stream "A grammar of graphics guide object
 It is of class ~a
-It's source is
-It's label is"
-	  (class-name (class-of self)) (source self) (label self)))
+It's source is ~a
+It's label is ~a~%"
+	  (class-name (class-of self))  (source self) (label self)))
 
 (defclass legend (guide)
   ())
@@ -53,11 +53,17 @@ It's label is"
     obj))
 
 (defclass axis (guide)
-  ())
+  ((dim :accessor dim
+	:documentation "Dimension the axis is associated with")))
 
-(defun make-axis-guide (label &optional source)
+(defmethod describe-object :after ((self axis) stream)
+  (format stream "It is associated with dimension ~a~%" (dim self)))
+
+
+(defun make-axis-guide (dim label &optional source)
   (let ((obj (make-instance 'axis)))
-    (setf (label obj) label)
+    (setf (label obj) label
+	  (dim obj) dim)
     (when source
       (setf (source obj) source))
     obj))

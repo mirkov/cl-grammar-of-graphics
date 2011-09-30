@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-09-29 21:43:48 gg-gnuplot-interface.lisp>
+;; Time-stamp: <2011-09-30 13:05:46EDT gg-gnuplot-interface.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -28,45 +28,76 @@
 	      (loop for element in elements
 		 collect
 		 (format nil "~a title \"~a\""
-			 (render-element :gnuplot element)
-			 (funcall (print (label legend))
-				  (data element))))
+			 (render-element :gnuplot element self)
+			 (funcall (label legend) (data element))))
 	      (loop for element in elements
 		 collect
 		 (format nil "~a notitle"
-			 (render-element :gnuplot element))))))
+			 (render-element :gnuplot element self))))))
     strings))
 
 
-(defmethod render-element ((type (eql :gnuplot)) (element point-element))
-  (format nil "~a" (data-access-string :gnuplot (data element))))
+(defmethod render-element ((type (eql :gnuplot)) (element point-element)
+			   (container gg-plot-components))
+  (format nil "~a" (data-access-string :gnuplot (data element) container)))
 
-(defmethod render-element ((type (eql :gnuplot)) (element line-element))
-  (format nil "~a with lines" (data-access-string :gnuplot (data element))))
+(defmethod render-element ((type (eql :gnuplot)) (element line-element)
+			   (container gg-plot-components))
+  (format nil "~a with lines" (data-access-string :gnuplot (data element) container)))
 
-(defmethod data-access-string ((type (eql :gnuplot)) (data column))
+(defmethod data-access-string ((type (eql :gnuplot)) (data column)
+			       (container gg-plot-components))
   (let ((source (source data))
-	(index-info (column-index data)))
+	(using-args
+	 (if (slot-boundp container 'transformations)
+	     (destructuring-bind (x-index y-index)
+		 (column-index data)
+	       (let ((transformations (transformations container)))
+		 (list (aif (find 0 transformations :key #'dim)
+			    (format nil "(~a)"
+				    (insert-column-arg (def it) x-index))
+			    (1+ x-index))
+		       (aif (find 1 transformations :key #'dim)
+			    (format nil "(~a)"
+				    (insert-column-arg (def it) y-index))
+			    (1+ y-index)))))
+	     (mapcar #'1+ (column-index data)))))
     (assert (typep source 'pathname)
 	    ()
 	    "Data source must be a path")
-    (format nil "'~a' using ~{~a:~a~}" source (mapcar #'1+ index-info))))
+    (format nil "'~a' using ~{~a:~a~}" source using-args)))
+
+(define-test insert-column-arg
+  (assert-equal "abc" (insert-column-arg "abc" 1))
+  (assert-equal "$1abc" (insert-column-arg "$abc" 1))
+  (assert-equal "a$1bc" (insert-column-arg "a$bc" 1))
+  (assert-equal "abc$1" (insert-column-arg "abc$" 1)))
+
     
+(defun insert-column-arg (def index)
+  (let* ((pos (position #\$ def)))
+    (if pos
+	(concatenate 'string
+		     (subseq def 0 (1+ pos))
+		     (prin1-to-string index)
+		     (subseq def (1+ pos)))
+	def)))
+
+
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defmethod set-gnuplot-labels ((container gg-plot-components))
     "Set gnuplot axis labels based on definitions stored in container"
-    (let ((axes-defs (axes container)))
-      (loop for def in axes-defs
-	 for axis in '("xlabel" "ylabel" "zlabel")
-	 do
-	 (gnuplot-interface:gnuplot-command
-	  (format nil "set ~a \"~a\"" axis (label def))))))
+    (let ((axes-defs (axes container))
+	  (identifyer-string #("xlabel" "ylabel" "zlabel")))
+      (dolist (def axes-defs)
+	(gnuplot-interface:gnuplot-command
+	 (format nil "set ~a \"~a\"" (elt identifyer-string (dim def))
+		 (label def))))))
   (defmethod set-gnuplot-title ((container gg-plot-components))
     "Set gnuplot axis labels based on definitions stored in container"
-    (let ((text-defs (text container)))
-      (when (slot-boundp text-defs 'title)
-	(gnuplot-interface:gnuplot-command
-	  (format nil "set title \"~a\""  (title text-defs)))))))
+    (aif (title container)
+	  (gnuplot-interface:gnuplot-command
+	   (format nil "set title \"~a\""  (text it))))))
 
 (defmacro with-gnuplot-axes-labels (container &body body)
   `(unwind-protect
@@ -106,19 +137,20 @@
 the title) and cleaning up"
   `(unwind-protect
 	(progn
-	  (set-gnuplot-title ,container)
+	  (when (slot-boundp ,container 'title)
+	    (set-gnuplot-title ,container))
 	  ,@body)
      (gnuplot-interface:gnuplot-command
       (format nil "unset title"))))
 
 (define-test with-gnuplot-title
-  (let ((text (make-text-guide :title "Example plot"))
+  (let ((title (make-text-guide :title "Example plot"))
 	(container (make-gg-plot-components-container)))
-    (add-text-guide container text)
+    (add-text-guide container title)
     (assert-expands
      '(unwind-protect
        (progn
-	 (set-gnuplot-title container)
+	 (setf (title container) title)
 	 t)
        (gnuplot-interface:gnuplot-command
 	(format nil "unset title")))
@@ -213,11 +245,12 @@ the title) and cleaning up"
       (legend (make-legend-guide
 	       #'(lambda (data)
 		   (format nil "~a" (second (column-index data))))))
-      (x-axis (make-axis-guide "Time (sec)"))
-      (y-axis (make-axis-guide "y"))
-      (text (make-text-guide :title "Example plot"))
+      (x-axis (make-axis-guide 0 "Time (sec)"))
+      (y-axis (make-axis-guide 0 "y"))
+      (title (make-title-text "Example plot"))
       (x-scale (make-interval-scale 0))
-      (y-scale (make-log-scale 1)))
+      (y-scale (make-log-scale 1))
+      (sec->usec (make-transformation 0 :gnuplot "$*1e-6")))
   (let ((e1 (make-point-element dat1))
 	(e2 (make-line-element dat2))
 	(container (make-gg-plot-components-container)))
@@ -226,9 +259,10 @@ the title) and cleaning up"
     (add-legend-guide container legend)
     (add-axis-guide container y-axis)
     (add-axis-guide container x-axis)
-    (add-text-guide container text)
+    (setf (title container) title)
     (add-scale container x-scale)
     (add-scale container y-scale)
+    (add-transformation container sec->usec)
     (with-log-scales container
       (with-gnuplot-axes-labels container
 	(with-gnuplot-title container
