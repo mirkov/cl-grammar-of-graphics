@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-09-28 10:35:15EDT gg-algebra.lisp>
+;; Time-stamp: <2011-10-04 13:39:18 gg-algebra.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -42,3 +42,16 @@ The argumets are object that are subclasses of the `gg-data' class
 
 The argumets are object that are subclasses of the `gg-data' class
 "))
+
+(defmethod gg* ((arg1 gg-data) (arg2 gg-data) &rest args)
+  (let ((data-class (class-name (class-of arg1))))
+    (assert (block top
+	      (and (equal (class-name (class-of arg2))
+			  data-class)
+		   (dolist (arg args t)
+		     (unless (equal (class-name (class-of arg))
+				    data-class)
+		       (return-from top nil))))))
+    ()
+    "All arguments must be of class ~a data-class")
+  (apply #'cross-data (list arg1 arg2) args))
