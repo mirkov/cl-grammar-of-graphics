@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-09-30 12:41:22EDT plot-container.lisp>
+;; Time-stamp: <2011-10-03 09:55:58 plot-container.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -31,28 +31,28 @@
 
 
 (defclass gg-plot-components ()
-  ((elements :accessor elements
+  ((transformations :accessor transformations
+		    :documentation "List of transformations associated
+		    with a plot"
+		    :initform (list))
+   (scales :accessor scales
+	   :documentation "Scale information"
+	   :initform (list))
+   (elements :accessor elements
 	     :initform (list)
 	     :documentation "List of all plot elements.  All list
 	     elements must be a sub-class of `gg-element'")
+   (axes :accessor axes
+	 :initform (list)
+	 :documentation "List of all axes specifications")
    (legends :accessor legends
 	    :initform (list)
 	    :documentation "Legend specification.  Its interpretation
 	    depends on the graphics engine.  It can be a function")
-   (axes :accessor axes
-	 :initform (list)
-	 :documentation "List of all axes specifications")
    (title :accessor title
 	 :documentation "Graphics title")
    (footnote :accessor footnote
-	 :documentation "Graphics footnote")
-   (scales :accessor scales
-	   :documentation "Scale information"
-	   :initform (list))
-   (transformations :accessor transformations
-		    :documentation "List of transformations associated
-		    with a plot"
-		    :initform (list)))
+	 :documentation "Graphics footnote"))
   (:documentation "Container that stores all the components of the plot
 The contents of this container are used to generate the plot"))
 

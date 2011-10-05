@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-09-30 14:21:13EDT gg-gnuplot-interface.lisp>
+;; Time-stamp: <2011-10-05 10:23:01EDT gg-gnuplot-interface.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -19,6 +19,14 @@
 
 (in-package :cl-gg)
 
+(defclass gnuplot-plot-components (gg-plot-components)
+  ((inline-data :accessor inline-data
+		:initform (list)
+		:documentation
+"A list of data elements that will be plotted inline.  The ordering is
+important.  The data elements are pushed into the list"))
+  (:documentation "gg-plot-components subclass for gnuplot's needs"))
+
 (defmethod gg-create-plot-command ((type (eql :gnuplot))
 				   (self gg-plot-components))
   (let* ((elements (elements self))
@@ -32,56 +40,109 @@
 			 (funcall (label legend) (data element))))
 	      (loop for element in elements
 		 collect
-		 (format nil "~a notitle"
+		 (format nil "~a " ;;notitle"
 			 (render-element :gnuplot element self))))))
     strings))
 
 
+(defgeneric render-element (type element container)
+  (:documentation "Return a string that `plot' will use to render the 
+element
+
+`type' must be :gnuplot
+`element' is an object of type `element'
+`container' is an object of type `gg-plot-components'"))
+
 (defmethod render-element ((type (eql :gnuplot)) (element point-element)
 			   (container gg-plot-components))
-  (format nil "~a" (data-access-string :gnuplot (data element) container)))
+  (let ((string
+	 (format nil "~a" (data-access-string :gnuplot (data element) container))))
+    string))
 
 (defmethod render-element ((type (eql :gnuplot)) (element line-element)
 			   (container gg-plot-components))
   (format nil "~a with lines" (data-access-string :gnuplot (data element) container)))
 
+(defgeneric data-access-string (type data container)
+  (:documentation "Create a string for plot to access the data
+
+`type' must be :gnuplot
+`element' is an object of type `element'
+`container' is an object of type `gg-plot-components'"))
+
 (defmethod data-access-string ((type (eql :gnuplot)) (data column)
 			       (container gg-plot-components))
   (let ((source (source data))
-	(using-args
-	 (if (slot-boundp container 'transformations)
-	     (destructuring-bind (x-index y-index)
-		 (column-index data)
-	       (let ((transformations (transformations container)))
-		 (list (aif (find 0 transformations :key #'dim)
-			    (format nil "(~a)"
-				    (insert-column-arg (def it) x-index))
-			    (1+ x-index))
-		       (aif (find 1 transformations :key #'dim)
-			    (format nil "(~a)"
-				    (insert-column-arg (def it) y-index))
-			    (1+ y-index)))))
-	     (mapcar #'1+ (column-index data)))))
+	(column-index-info (column-index data)))
     (assert (typep source 'pathname)
 	    ()
 	    "Data source must be a path")
-    (format nil "'~a' using ~{~a:~a~}" source using-args)))
+    (if (atom column-index-info)
+	(let ((column-access-specifier
+	       (if (slot-boundp container 'transformations)
+		   (one-col-access-transform-maybe
+		    column-index-info
+		    (transformations container))
+		   (1+ column-index-info))))
+	  (format nil "'~a' using ~a" source column-access-specifier))
+	(let ((column-access-specifier
+	       (if (slot-boundp container 'transformations)
+		   (two-col-access-transform-maybe
+		    column-index-info
+		    (transformations container))
+		   (mapcar #'1+ column-index-info))))
+	  (format nil "'~a' using ~{~a:~a~}" source column-access-specifier)))))
 
-(define-test insert-column-arg
-  (assert-equal "abc" (insert-column-arg "abc" 1))
-  (assert-equal "$1abc" (insert-column-arg "$abc" 1))
-  (assert-equal "a$1bc" (insert-column-arg "a$bc" 1))
-  (assert-equal "abc$1" (insert-column-arg "abc$" 1)))
+(defmethod data-access-string ((type (eql :gnuplot)) (data list-data)
+			       (container gg-plot-components))
+  ;; when using lisp sequences, the data access string is the special
+  ;; file '-'.  More action occurs in in the main calling routine,
+  ;; where the inline data is sent to gnuplot
+  (push data (inline-data container))
+  "'-' ")
 
-    
-(defun insert-column-arg (def index)
-  (let* ((pos (position #\$ def)))
-    (if pos
-	(concatenate 'string
-		     (subseq def 0 (1+ pos))
-		     (prin1-to-string index)
-		     (subseq def (1+ pos)))
-	def)))
+(defmethod data-access-string ((type (eql :gnuplot)) (data matrix-data)
+			       (container gg-plot-components))
+  ;; when using lisp sequences, the data access string is the special
+  ;; file '-'.  More action occurs in in the main calling routine,
+  ;; where the inline data is sent to gnuplot
+  (push data (inline-data container))
+  "'-' ")
+
+(defun two-col-access-transform-maybe
+    (column-indices transformations)
+  "Generate a two-column access string or index based on the two
+element list `column-indices' and `transformations'.
+
+The tranformation for dim 0 (if defined) is applied to the first list
+element, and likewise for transformation for dim 1 and the second list
+element
+
+Thus, assuming tranformations \"$*5\" and \"log($)\" for dimensions 0
+and 1 respectively, the list '(0 3) will return '(\"($1*5)\"
+\"(log($4))\""
+  (destructuring-bind (x-index y-index)
+      column-indices
+    (list (aif (find 0 transformations :key #'dim)
+	       (format nil "(~a)"
+		       (insert-column-index (def it) (1+ x-index)))
+	       (1+ x-index))
+	  (aif (find 1 transformations :key #'dim)
+	       (format nil "(~a)"
+		       (insert-column-index (def it) (1+ y-index)))
+	       (1+ y-index)))))
+
+
+(defun one-col-access-transform-maybe
+    (column-index transformations)
+  "If the `transformations' contains one for dim 1 is specified, generate a string to that effect.  Otherwise, return 1+column-index
+
+Thus, assuming tranformations \"$*5\" dimensions 1 column-index 3 will
+return return '(\"($1*5)\""
+  (aif (find 1 transformations :key #'dim)
+       (format nil "(~a)"
+	       (insert-column-index (def it) (1+ column-index)))
+       (1+ column-index)))
 
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
@@ -90,13 +151,13 @@
     (let ((axes-defs (axes container))
 	  (identifyer-string #("xlabel" "ylabel" "zlabel")))
       (dolist (def axes-defs)
-	(gnuplot-interface:gnuplot-command
+	(gnuplot-interface:command
 	 (format nil "set ~a \"~a\"" (elt identifyer-string (dim def))
 		 (label def))))))
   (defmethod set-gnuplot-title ((container gg-plot-components))
     "Set gnuplot axis labels based on definitions stored in container"
     (aif (title container)
-	  (gnuplot-interface:gnuplot-command
+	  (gnuplot-interface:command
 	   (format nil "set title \"~a\""  (text it))))))
 
 (defmacro with-gnuplot-axes-labels (container &body body)
@@ -105,11 +166,11 @@
 	  (set-gnuplot-labels ,container)
 	  ,@body)
      (progn
-       (gnuplot-interface:gnuplot-command
+       (gnuplot-interface:command
 	(format nil "unset xlabel"))
-       (gnuplot-interface:gnuplot-command
+       (gnuplot-interface:command
 	(format nil "unset ylabel"))
-       (gnuplot-interface:gnuplot-command
+       (gnuplot-interface:command
 	(format nil "unset zlabel")))))
 
 (define-test with-gnuplot-axes-labels
@@ -124,11 +185,11 @@
 	 (set-gnuplot-labels container)
 	 t)
        (progn
-	 (gnuplot-interface:gnuplot-command
+	 (gnuplot-interface:command
 	  (format nil "unset xlabel"))
-	 (gnuplot-interface:gnuplot-command
+	 (gnuplot-interface:command
 	  (format nil "unset ylabel"))
-	 (gnuplot-interface:gnuplot-command
+	 (gnuplot-interface:command
 	  (format nil "unset zlabel"))))
      (with-gnuplot-axes-labels container t ))))
 
@@ -140,7 +201,7 @@ the title) and cleaning up"
 	  (when (slot-boundp ,container 'title)
 	    (set-gnuplot-title ,container))
 	  ,@body)
-     (gnuplot-interface:gnuplot-command
+     (gnuplot-interface:command
       (format nil "unset title"))))
 
 (define-test with-gnuplot-title
@@ -152,7 +213,7 @@ the title) and cleaning up"
        (progn
 	 (setf (title container) title)
 	 t)
-       (gnuplot-interface:gnuplot-command
+       (gnuplot-interface:command
 	(format nil "unset title")))
      (with-gnuplot-title container t ))))
 
@@ -169,10 +230,10 @@ the title) and cleaning up"
      (if string
 	 (unwind-protect
 	      (progn
-		(gnuplot-interface:gnuplot-command
+		(gnuplot-interface:command
 		 (format nil "set logscale ~a" string))
 		,@body)
-	   (gnuplot-interface:gnuplot-command
+	   (gnuplot-interface:command
 	    (format nil "unset logscale ~a" string)))
 	 ,@body)))
 
@@ -195,10 +256,10 @@ the title) and cleaning up"
        (if string
 	   (unwind-protect
 		(progn
-		  (gnuplot-interface:gnuplot-command
+		  (gnuplot-interface:command
 		   (format nil "set logscale ~a" string))
 		  T)
-	     (gnuplot-interface:gnuplot-command
+	     (gnuplot-interface:command
 	      (format nil "unset logscale ~a" string)))
 	   T))
      (with-log-scales container t))))
@@ -209,30 +270,16 @@ the title) and cleaning up"
 	 (y-scale (find 1 scales :key #'dim)))
     (concatenate 'string
 		 (if x-scale
-		     (format nil "[~a:~a] "
-			     (aif (scale-min x-scale)
-				  it "*")
-			     (aif (scale-max x-scale)
-				  it "*"))
-		     "[] ")
+		     (format-range 
+		      (cons (aif (scale-min x-scale) it)
+			    (aif (scale-max x-scale) it)))
+		     (format-range))
 		 (if y-scale
-		     (format nil "[~a:~a] "
-			     (aif (scale-min y-scale)
-				  it "")
-			     (aif (scale-max y-scale)
-				  it ""))
-		     "[] "))))
+		     (format-range 
+		      (cons (aif (scale-min y-scale) it)
+			    (aif (scale-max y-scale) it)))
+		     (format-range)))))
 
-(define-test make-range-string
-  (let* ((x-scale (make-interval-scale 0 :min 0.2e-8 :max 1.3e-8))
-	 (y-scale (make-log-scale 1))
-	 (container (make-gg-plot-components-container)))
-    (add-scale container x-scale)
-    (add-scale container y-scale)
-    (assert-equal
-     "[2.e-9:1.3e-8] [:] "
-     (make-range-string :gnuplot container))))
- 
 #|
 (let ((dat1 (make-column-data
 	     (merge-pathnames "columnar-data.dat"
@@ -250,7 +297,7 @@ the title) and cleaning up"
       (title (make-title-text "Example plot"))
       (x-scale (make-interval-scale 0))
       (y-scale (make-log-scale 1))
-      (sec->usec (make-transformation 0 :gnuplot "$*1e-6")))
+      (sec->usec (make-transformation 0 :gnuplot "$*1e6")))
   (let ((e1 (make-point-element dat1))
 	(e2 (make-line-element dat2))
 	(container (make-gg-plot-components-container)))
@@ -266,9 +313,60 @@ the title) and cleaning up"
     (with-log-scales container
       (with-gnuplot-axes-labels container
 	(with-gnuplot-title container
-	  (gnuplot-interface:gnuplot-command
+	  (gnuplot-interface:command
 	   (format nil "plot ~a ~{~a~^,~}"
 		   (make-range-string :gnuplot container)
 		   (gg-create-plot-command :gnuplot container))))))))
+
+(let* ((dat1 (make-column-data
+	     (merge-pathnames "columnar-data.dat"
+			      *test-files-path*)
+	     '6))
+       (e1 (make-point-element dat1))
+       (container (make-gg-plot-components-container)))
+    (add-element container e1)
+    (gnuplot-interface:command
+     (format nil "plot ~a ~{~a~^,~}"
+	     (make-range-string :gnuplot container)
+	     (gg-create-plot-command :gnuplot container))))
+
+(let* ((dat1 (make-list-data (list 1 2 8 -5)))
+       (e1 (make-line-element dat1))
+       (container (make-instance 'gnuplot-plot-components)))
+  (add-element container e1)
+  (gnuplot-interface:send-line 
+   (format nil "plot ~a ~{~a~^,~}"
+	   (make-range-string :gnuplot container)
+	   (gg-create-plot-command :gnuplot container)))
+  (awhen (inline-data container)
+	 (mapcar #'(lambda (inlined-data)
+		     (print-inline-data gnuplot-interface::*command*
+					(source inlined-data)))
+it))
+  (finish-output gnuplot-interface::*command*))
+
+(let* ((dat1 (make-matrix-data
+	      (make-array '(5 2)
+			  :initial-contents
+			  '((1 2)
+			    (2 3)
+			    (3 8)
+			    (5 -2)
+			    (6 0)))
+	      '(0 1)))
+       (e1 (make-line-element dat1))
+       (container (make-instance 'gnuplot-plot-components)))
+  (add-element container e1)
+  (gnuplot-interface:send-line 
+   (format nil "plot ~a ~{~a~^,~}"
+	   (make-range-string :gnuplot container)
+	   (gg-create-plot-command :gnuplot container)))
+  (awhen (inline-data container)
+	 (mapcar #'(lambda (inlined-data)
+		     (print-inline-data gnuplot-interface::*command*
+					(source inlined-data)))
+it))
+  (finish-output gnuplot-interface::*command*))
+
 
 |#

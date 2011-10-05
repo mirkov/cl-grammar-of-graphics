@@ -2,9 +2,11 @@
 
 (defpackage #:cl-grammar-of-graphics
   (:nicknames :cl-gg)
-  (:use #:cl :gnuplot-interface :lisp-unit)
+  (:use #:cl :gnuplot-interface :lisp-unit
+	:gnuplot-command-strings)
   (:import-from :anaphora
 		:it
+		:awhen
 		:aif)
   (:export :make-column-data
 	   :make-legend-guide

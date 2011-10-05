@@ -1,8 +1,8 @@
 #+title: common-lisp interpretation to grammar-of-graphics
 
 
-Incomplete implementation of Wilkinson grammar of graphics, and
-graphics drivers based on it.
+Incomplete implementation of Wilkinson's grammar of graphics, and of a
+=gnuplot= graphics driver based on it.
 
 Provides:
 - Implementation of grammar elements in terms of =CLOS= classes
@@ -11,21 +11,64 @@ Provides:
   and generic functions
   - Not implemented yet
 - Graphic driver for =gnuplot=
-  - Uses /gnuplot-interface/ package
+  - Uses /gnuplot-interface/ package and other packages
   - Very incomplete
     
+Note:
+  =ggplot2= is an implementation of GG for the =R= language.  It
+  implements much of GG, and also adds some new features, such as
+  layers.
+
+
+* What is not implemented and why
+** Algebra of data
+   The purpose of the algebra is to combine data from various sources
+   into something that can be plotted.
+
+   I may implement this in the future, but currently, I will combine
+   the data in lisp and store it as data.  Thus a curve will be stored
+   as two vectors of points, or two lists, or some other such
+   combination.
+
+** Facets
+
+   Facets are used to display multidimensional data in a 1 or 2-d grid
+   of plots.  They will eventually be included.
+
+** =ggplot2= layers
+
+   Eventually
+
     
-Development strategy:
-- I implement features based on my current needs
-- Current goal is to provide 2D plotting utilities for data stored in
-  files using =gnuplot= as the plotting engine
+* Development strategy:
+  - I implement features based on my current needs
+  - Current goal is to provide 2D plotting utilities for data stored in
+    files using =gnuplot= as the plotting engine
+  - Future activities
+    - Plotting of data stored in lisp sequences
+    - Plotting of lisp functions
   
-The architecture and public interface of this package are subject to
-change.
+  The architecture and public interface of this package are subject to
+  change.
+
+* Package purpose
+
+  Grammar of Graphics (GG) is a /specification/ for graphics contents
+  and layout.  It is not a specification on how to produce such
+  graphics.
+
+  The purpose of this package is two-fold
+  - Provide CLOS infrastructure for storing the graphics specification
+  - Generation of graphics using gnuplot
+    
+    
+  It is important to realize that gnuplot (and other renderers) may
+  not be able to follow all of the gg specifications.
 
 
-The main references for this software are:
-- Grammar of Graphics by Leland Wilkinson defines the grammar
-- ggplot http://had.co.nz/ggplot/ by Hadley Wickham uses (and extends
-  Wilkinson's grammar) to implement R's ggplot plotting package
-- gnuplot: http://www.gnuplot.info/
+* References
+  The main references for this software are:
+  - Grammar of Graphics by Leland Wilkinson defines the grammar
+  - ggplot http://had.co.nz/ggplot/ by Hadley Wickham uses (and extends
+    Wilkinson's grammar) to implement R's ggplot plotting package
+  - gnuplot: http://www.gnuplot.info/
