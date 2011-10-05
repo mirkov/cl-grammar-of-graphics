@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-10-05 10:23:01EDT gg-gnuplot-interface.lisp>
+;; Time-stamp: <2011-10-05 12:33:18EDT gg-gnuplot-interface.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -339,10 +339,10 @@ the title) and cleaning up"
 	   (make-range-string :gnuplot container)
 	   (gg-create-plot-command :gnuplot container)))
   (awhen (inline-data container)
-	 (mapcar #'(lambda (inlined-data)
-		     (print-inline-data gnuplot-interface::*command*
-					(source inlined-data)))
-it))
+    (mapcar #'(lambda (inlined-data)
+		(print-inline-data gnuplot-interface::*command*
+				   (source inlined-data)))
+	    it))
   (finish-output gnuplot-interface::*command*))
 
 (let* ((dat1 (make-matrix-data
@@ -362,10 +362,10 @@ it))
 	   (make-range-string :gnuplot container)
 	   (gg-create-plot-command :gnuplot container)))
   (awhen (inline-data container)
-	 (mapcar #'(lambda (inlined-data)
-		     (print-inline-data gnuplot-interface::*command*
-					(source inlined-data)))
-it))
+    (mapcar #'(lambda (inlined-data)
+		(print-inline-data gnuplot-interface::*command*
+				   (source inlined-data)))
+	    it))
   (finish-output gnuplot-interface::*command*))
 
 
