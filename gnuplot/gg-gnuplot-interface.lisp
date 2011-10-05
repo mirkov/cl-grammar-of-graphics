@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-09-30 13:05:46EDT gg-gnuplot-interface.lisp>
+;; Time-stamp: <2011-09-30 14:21:13EDT gg-gnuplot-interface.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
