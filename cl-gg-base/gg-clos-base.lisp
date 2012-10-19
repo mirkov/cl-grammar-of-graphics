@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-10-07 10:44:27 gg-algebra.lisp>
+;; Time-stamp: <2011-10-06 18:37:44 gg-clos-base.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -18,10 +18,14 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (in-package :cl-gg)
+;; This file sets up the base class and other clos elements for all of
+;; grammar of graphics
 
-;; this file defines macros that translate algebra expressions into
-;; algebra forms
+(defclass gg ()
+  ()
+  (:documentation "The base class for all gg classes"))
 
-
-
-
+;; we define a default print method.  It can be overridden.  Hopefully
+;; it will satisfy most of gg classes
+(defmethod print-object ((self gg) stream)
+  (print-unreadable-object (self stream :type t :identity t)))

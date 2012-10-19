@@ -1,5 +1,5 @@
 ;; Mirko Vukovic
-;; Time-stamp: <2011-10-05 12:33:18EDT gg-gnuplot-interface.lisp>
+;; Time-stamp: <2011-10-10 22:43:18 gg-gnuplot-interface.lisp>
 ;; 
 ;; Copyright 2011 Mirko Vukovic
 ;; Distributed under the terms of the GNU General Public License
@@ -93,7 +93,15 @@ element
 		   (mapcar #'1+ column-index-info))))
 	  (format nil "'~a' using ~{~a:~a~}" source column-access-specifier)))))
 
-(defmethod data-access-string ((type (eql :gnuplot)) (data list-data)
+(defmethod data-access-string ((type (eql :gnuplot)) (data factor)
+			       (container gg-plot-components))
+  ;; when using lisp sequences, the data access string is the special
+  ;; file '-'.  More action occurs in in the main calling routine,
+  ;; where the inline data is sent to gnuplot
+  (push data (inline-data container))
+  "'-' ")
+
+(defmethod data-access-string ((type (eql :gnuplot)) (data term)
 			       (container gg-plot-components))
   ;; when using lisp sequences, the data access string is the special
   ;; file '-'.  More action occurs in in the main calling routine,
@@ -281,6 +289,40 @@ the title) and cleaning up"
 		     (format-range)))))
 
 #|
+
+(let* ((dat1 (make-factor (list 1 2 8 -5)))
+       (e1 (make-line-element dat1))
+       (container (make-instance 'gnuplot-plot-components)))
+  (add-element container e1)
+  (gnuplot-interface:send-line 
+   (format nil "plot ~a ~{~a~^,~}"
+	   (make-range-string :gnuplot container)
+	   (gg-create-plot-command :gnuplot container)))
+  (awhen (inline-data container)
+    (mapcar #'(lambda (inlined-data)
+		(print-inline-data gnuplot-interface::*command*
+				   inlined-data))
+	    it))
+  (finish-output gnuplot-interface::*command*))
+
+
+
+(let* ((c1 (make-factor (list 1 2 3 5 6)))
+       (c2 (make-factor (list 2 3 8 -2 0)))
+       (e1 (make-line-element (cross c1 c2)))
+       (container (make-instance 'gnuplot-plot-components)))
+  (add-element container e1)
+  (gnuplot-interface:send-line 
+   (format nil "plot ~a ~{~a~^,~}"
+	   (make-range-string :gnuplot container)
+	   (gg-create-plot-command :gnuplot container)))
+  (awhen (inline-data container)
+    (mapcar #'(lambda (inlined-data)
+		(print-inline-data gnuplot-interface::*command*
+				   inlined-data))
+	    it))
+  (finish-output gnuplot-interface::*command*))
+
 (let ((dat1 (make-column-data
 	     (merge-pathnames "columnar-data.dat"
 			      *test-files-path*)
@@ -330,43 +372,9 @@ the title) and cleaning up"
 	     (make-range-string :gnuplot container)
 	     (gg-create-plot-command :gnuplot container))))
 
-(let* ((dat1 (make-list-data (list 1 2 8 -5)))
-       (e1 (make-line-element dat1))
-       (container (make-instance 'gnuplot-plot-components)))
-  (add-element container e1)
-  (gnuplot-interface:send-line 
-   (format nil "plot ~a ~{~a~^,~}"
-	   (make-range-string :gnuplot container)
-	   (gg-create-plot-command :gnuplot container)))
-  (awhen (inline-data container)
-    (mapcar #'(lambda (inlined-data)
-		(print-inline-data gnuplot-interface::*command*
-				   (source inlined-data)))
-	    it))
-  (finish-output gnuplot-interface::*command*))
 
-(let* ((dat1 (make-matrix-data
-	      (make-array '(5 2)
-			  :initial-contents
-			  '((1 2)
-			    (2 3)
-			    (3 8)
-			    (5 -2)
-			    (6 0)))
-	      '(0 1)))
-       (e1 (make-line-element dat1))
-       (container (make-instance 'gnuplot-plot-components)))
-  (add-element container e1)
-  (gnuplot-interface:send-line 
-   (format nil "plot ~a ~{~a~^,~}"
-	   (make-range-string :gnuplot container)
-	   (gg-create-plot-command :gnuplot container)))
-  (awhen (inline-data container)
-    (mapcar #'(lambda (inlined-data)
-		(print-inline-data gnuplot-interface::*command*
-				   (source inlined-data)))
-	    it))
-  (finish-output gnuplot-interface::*command*))
+
+
 
 
 |#

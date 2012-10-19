@@ -9,9 +9,13 @@
    (:module "cl-gg-base"
 	    :depends-on ("cl-gg-init")
 	    :pathname #p"cl-gg-base/"
-	    :components ((:file "gg-data")
-			 (:file "transformations")
+	    :components ((:file "gg-clos-base")
+			 (:file "data-functions")
+			 (:file "varsets")
+			 (:file "algebra-forms")
 			 (:file "gg-algebra")
+			 (:file "gg-data")
+			 (:file "transformations")
 			 (:file "scales")
 			 (:file "elements")
 			 (:file "guides")

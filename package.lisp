@@ -8,6 +8,7 @@
 		:it
 		:awhen
 		:aif)
+  (:shadow :cl :count)
   (:export :make-column-data
 	   :make-legend-guide
 	   :make-axis-guide
