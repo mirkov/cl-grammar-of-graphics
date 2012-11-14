@@ -1,0 +1,297 @@
+#+title: Examples of CL-GOG syntax
+
+To get a feel for CL implementation of the GoG, I rewrote some of the
+figures in a CL-like syntax.  Most of the figures use data from
+Wilkinon's [[http://www.cs.uic.edu/~wilkinson/TheGrammarOfGraphics/GOG.html][web site]].  The links in this file point to that data.
+
+Unfortunately, on Wilkinson's web-site, figure references are
+incorrect.  My guess is that they refer to the books' first edition.
+I believe I found the correct figures for the second edition.
+
+Because I will allow for CL expressions in the midst of GoG
+expressions, I cannot use symbols ~*~, ~+~, and ~/~ in the GoG
+algebraic expression.  Instead I prefix them like this: ~gog:*~,
+~gog:+~, and ~gog:/~.
+
+This is only a tentative version of CL-GOG.  The GoG declarations are
+expressed as CL forms.  Some specifications (such as ~scale~, ~coord~,
+~position~ look like function calls.  Others (~label~, ~color~) may be
+expressed more naturally as keyword-value pairs.
+
+** Figure 2.4
+
+We use the ~let~ form to instantiate the variables ~response~ and
+~gender~ instead of gog's ~data~.
+#+BEGIN_SRC lisp
+  (gog
+   (let ((response response)
+         (gender gender))
+     (scale (cat (dim 1)
+                 :values (list "Rarely" "Infrequently" "Occasionally"
+                               "Frequently" "Not Sure")))
+     (scale (cat (dim 2)
+                 :values "Female" "Male"))
+     (coord (rect (dim 2)
+                  :polar.theta (dim 1)))
+     (element (interval.stack (position (summary.proportion
+                                         (gog:* response gender))
+                                        :label response
+                                        :color response)))))
+#+END_SRC
+
+** Figure 4.1
+
+
+   Data source: [[http://www.cs.uic.edu/~wilkinson/TheGrammarOfGraphics/mfcrime.txt][Male/Female crime]]
+
+   Instead of using GOG's built-in functions ~sum~, ~quotient~,
+   ~total~, ~diff~, and ~sort~ we use CL to calculate the data in
+   an outer ~let~ statement
+
+#+BEGIN_SRC lisp
+  (let ((mf (sort (loop :for m in males
+                       :for f in females
+                       :collect (/ (- m f)
+                                   (+ m f))))))
+    (gog
+     (element (position (gog:* mf crime)))))
+#+END_SRC
+
+** Figure 5.7
+
+   [[http://www.cs.uic.edu/~wilkinson/TheGrammarOfGraphics/shakespeare.txt][Shakespeare]] characters
+
+   #+BEGIN_SRC lisp
+     (gog
+      (element (point.stack (position (gog:+ first second)))))
+   #+END_SRC
+
+** Figure 6.5
+
+   Data comes from [[http://www.cs.uic.edu/~wilkinson/TheGrammarOfGraphics/spss.txt][SPSS stock price]] which on the web-site mistakenly
+   points to figure 8.5.
+
+   #+BEGIN_SRC lisp
+     (gog
+      (scale (time (dim 1)))
+      (guide (axis (dim 1)
+                   :format "mm/dd/yy"))
+      (element (interval (position (region.spread.range
+                                    (gog:* data (gog:+ high low)))))))
+   #+END_SRC
+
+** Figure 7.5
+
+   We again use [[http://www.cs.uic.edu/~wilkinson/TheGrammarOfGraphics/spss.txt][spss stock price]]
+
+   #+BEGIN_SRC lisp
+     (gog
+      (scale (time (dim 1)))
+      (guide (axis (dim 1) 
+                   :format "mmm"))
+      (element (line (position (region.spread.range
+                                (gog:* date (gog:+ high low)))))))
+   #+END_SRC
+
+** Figure 7.7
+
+   Labeled as 8.7 on the web page
+
+   [[http://www.cs.uic.edu/~wilkinson/TheGrammarOfGraphics/gonnelli.txt][Bone Alkaline Phosphatase]]
+
+   #+BEGIN_SRC lisp
+     (gog
+      (element (line (position (smooth.mode.epanechniqov (gog:* age bone)))))
+      (element (line (position (smooth.linear (gog:* age bone))
+                               :color :color.green)))
+      (element (point (position (gog:* age bone)))))
+   #+END_SRC
+
+** Figure 7.9
+
+   Labeled as 8.9 on web page
+   [[http://www.cs.uic.edu/~wilkinson/TheGrammarOfGraphics/survival.txt][survival]]
+   #+BEGIN_SRC lisp
+     (element (line (position (smooth.step (* days survive)))))
+   #+END_SRC
+
+** Figure 7.13
+
+   Another plot of the  [[http://www.cs.uic.edu/~wilkinson/TheGrammarOfGraphics/spss.txt][spss stock price]]
+
+   #+BEGIN_SRC lisp
+     (gog
+      (scale (dim 1))
+      (axis (dim 1) (format "mmm"))
+      (element (interval (position (region.spread.range
+                                    (gog:* date (gog:+ high low close))))))
+      (element (position (statistic.median (gog:* date (gog:+ high low close)))
+                         :shape :shape.hyphen)))
+   #+END_SRC
+** Figure 7.26 (left panel)
+
+   [[http://www.cs.uic.edu/~wilkinson/TheGrammarOfGraphics/fiddlercrabs.txt][fiddlercrabs]]  Labeled as 8.22 on web-page
+
+   #+BEGIN_SRC lisp
+     (gog
+      (element (position (bin.voronoi (gog:* crabx craby))))
+      (element (position (gog:* crabx craby))))
+   #+END_SRC
+
+** Figure 7.28
+
+   [[http://www.cs.uic.edu/~wilkinson/TheGrammarOfGraphics/fiddlercrabs.txt][fiddlercrabs]]  Labeled as 8.22 on web-page
+
+   #+BEGIN_SRC lisp
+     (gog
+      (element (point (position (bin.voronoi (gog:* crabx craby)))))
+      (element (edge (position (link.mst (gog:* crabx craby))))))
+   #+END_SRC
+
+** Figure 7.29
+
+   [[http://www.cs.uic.edu/~wilkinson/TheGrammarOfGraphics/fiddlercrabs.txt][fiddlercrabs]]  Labeled as 8.22 on web-page
+
+   #+BEGIN_SRC lisp
+     (gog
+      (element (point (position (bin.voronoi (gog:* crabx craby)))))
+      (element (edge (position (link.hull (gog:* crabx craby))))))
+   #+END_SRC
+
+** Figure 7.30
+
+   [[http://www.cs.uic.edu/~wilkinson/TheGrammarOfGraphics/fiddlercrabs.txt][fiddlercrabs]]  Labeled as 8.22 on web-page
+
+   #+BEGIN_SRC lisp
+     (gog
+      (element (point (position (bin.voronoi (gog:* crabx craby)))))
+      (element (edge (position (link.delaunay  (gog:* crabx craby))))))
+   #+END_SRC
+
+** Figure 7.31
+
+   [[http://www.cs.uic.edu/~wilkinson/TheGrammarOfGraphics/fiddlercrabs.txt][fiddlercrabs]]  Labeled as 8.22 on web-page
+
+   #+BEGIN_SRC lisp
+     (gog
+      (element (point (position (gog:* crabx craby))))
+      (element (edge (position (bin.voronoi (gog:* crabx craby))
+                               :color :color.red)))
+      (element (edge (position (link.mst (gog:* crabx craby))
+                               :color :color.blue)))
+      (element (edge (position (link.delaunay  (gog:* crabx craby))
+                               :color :color.violet)))
+      (element (edge (position (link.hull (gog:* crabx craby))
+                               :color :color.green))))
+   #+END_SRC
+
+   
+** Figure 7.32
+
+   [[http://www.cs.uic.edu/~wilkinson/TheGrammarOfGraphics/cardog.txt][cardog]], 8.26
+
+   #+BEGIN_SRC lisp
+     (gog
+      (element (point (position (gog:+ (gog:* caragility carsize)
+                                       (gog:* dogagility dogsize))
+                                :label (gog:+ car dog))))
+      (element (edge (position (link.join (gog:+ (gog:* caragility carsize)
+                                                 (gog:* dogagility dogsize)))))))
+   #+END_SRC
+
+** Figure ??
+
+   [[http://www.cs.uic.edu/~wilkinson/TheGrammarOfGraphics/wind.txt][wind]], 10.16
+
+Figure 11.15?
+
+
+** Figure 10.34
+
+   [[http://www.cs.uic.edu/~wilkinson/TheGrammarOfGraphics/planets.txt][Planet data]] (and not Fig. 7.38)
+
+
+   #+BEGIN_SRC lisp
+     (gog
+      (scale (log (dim 1) :base 10))
+      (scale (log (dim 2) :base 10))
+      (element (point (position (* distance temperature)
+                                   :size albedo
+                                   :label planet))))
+   #+END_SRC
+
+** Figure 10.57 (Also Shakespeare)
+
+   [[http://www.cs.uic.edu/~wilkinson/TheGrammarOfGraphics/shakespeare.txt][Shakespeare]] characters
+
+
+   #+BEGIN_SRC lisp
+     (gog
+      (let ((f "First")
+            (s "Second"))
+        (element (point.dodge (position (bin.dot (gog:+ first second))
+                                        :color (gog:+ f s))))))
+   #+END_SRC
+** Figure 11.12
+   
+   [[http://www.cs.uic.edu/~wilkinson/TheGrammarOfGraphics/agesex.txt][agesex]] 11.13
+
+   I don't fully understand how this definition generates
+   Fig. 11.12.  ~pop~ is presumably ~(gog:+ males females)~.  This is
+   a three dimensional plot: population vs. age vs. sex.
+
+   #+BEGIN_SRC lisp
+     (gog
+      (coord (transpose (mirror (dim 3)
+                                (rect (dim 1 2)))))
+      (element (interval (position (gog:* age pop sex)
+                                   :color sex
+                                   :size 2))))
+   #+END_SRC
+** Figure 20.1
+   [[http://www.cs.uic.edu/~wilkinson/TheGrammarOfGraphics/minard.txt][minard]] 15.1 (Napoleon march)
+
+   We again pre-process the data using CL.  Maybe these
+   transformations should be done inside gog body.
+   #+BEGIN_SRC lisp
+     (let* ((date (interpolate-missing date lont :linear))
+            (ldate (mapcar (lambda (arg)
+                             (- arg 1))
+                           date))
+            (days (mapcar (lambda (date lag-date)
+                            (- date lag-date))
+                          date ldate)))
+       (gog
+        (graph ((origin 0 0) (scale (12 :cm) (4 :cm)))
+               (element (point (position (gog:* lonc latc)
+                                         :label city
+                                         :size 0)))
+               (element (point (position (gog:* lonp latp)
+                                         :size survivors
+                                         :color direction
+                                         :split group)))
+               (guide (legend.color (dim 1))))
+        (graph ((origin 0 (-2 :cm)) (scale  (12 :cm) (12 :cm)))
+               (element (path (position (gog:* lont temp)
+                                        :label date
+                                        :texture.granularity days
+                                        :color.brightness 0.5)))
+               (guide (axis (dim 1)
+                            :label "Longitude"))
+               (guide (axis (dim 2)
+                            :label "Temperature")))))
+   #+END_SRC
+
+** Figure 20.2
+   [[http://www.cs.uic.edu/~wilkinson/TheGrammarOfGraphics/monarch.txt][monarch]] 15.2
+
+   #+BEGIN_SRC lisp
+     (gog
+      (multiple-value-bind (longitude latitutde)
+                 (map (source "US States"))
+        (coord (project.stereo (dim 1 2)))
+        (element (line (position (smooth.quadratic.cauchy (* lonp latp))
+                                 :color date)))
+        (element (polygon (position (* longitude latitude)
+                                    :pattern :texture.pattern.dash)))))
+   #+END_SRC

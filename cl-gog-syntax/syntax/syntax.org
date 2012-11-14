@@ -1,0 +1,20 @@
+#+title: CL-GoG syntax
+
+GOG syntax is discussed in Chapter 18 of the reference.
+
+CL-GOG syntax implements a subset of the GoG syntax.  It excludes the
+following
+- ~comment~
+- ~data~ - we use ~let~
+- ~do~ is used for looping.  Instead we use CL's facilities
+
+
+For primitives, GoG uses strings, numbers or names.  Instead of
+names, we will use symbols.
+
+For the unity value, we use ~gog:+1+
+
+For GoG algebraic operators, we use ~gog:*~, ~gog:+~, ~gog:/~.
+
+CL-GoG does not implement the GoG's ~TRANS~ operator.  Instead we use
+CL's facilities.

@@ -1,24 +1,68 @@
 #+title: common-lisp interpretation to grammar-of-graphics
 
 
-Incomplete implementation of Wilkinson's grammar of graphics, and of a
-=gnuplot= graphics driver based on it.
+* Aim
 
-Provides:
-- Implementation of grammar elements in terms of =CLOS= classes
-  - Very incomplete
-- Definitions of graphic driver interfaces in terms of =CLOS= classes
-  and generic functions
-  - Not implemented yet
-- Graphic driver for =gnuplot=
-  - Uses /gnuplot-interface/ package and other packages
-  - Very incomplete
+  This library implements Wilkinson's Grammar of Graphics in Common
+  Lisp.  It is currently under conceptual development.  Eventually,
+  it will contain
+
+  - CL-GoG-syntax :: Definition of GoG syntax in Common Lisp
+  - GoG-parser :: Parser that will translate GoG forms into
+                  statements for the back-end
+  - GoG-back-end :: A library of functions that will facilitate
+                    generation of commands for various rendering libraries
+  - GoG-XYZ :: Libraries of hooks into various renderers
     
-Note:
-  =ggplot2= is an implementation of GG for the =R= language.  It
-  implements much of GG, and also adds some new features, such as
-  layers.
+    
+  The main reference for the Grammar of Graphics is the second
+  edition of the book by the same name by Leland Wilkinson.
 
+* Purpose
+
+  We will try to establish a framework for driving various rendering
+  engines through a flexible interface based on Grammar of Graphics
+  (GoG).
+
+  Interestingly, Chapter 18 of the reference talks about automating
+  plot production, and defines a language for that purpose.  One
+  could argue that CL with Antik, a GoG framework, and a link to
+  rendering software will be an excellent platform for this task.
+
+
+* Status
+
+  The library is now in a state of large flux.  I (and others) will
+  rewrite large parts of it.  It should not be considered usable.
+  
+  I am reconsidering the design and implementation.  With that in
+  mind, I am going back to the basics, and re-considering the whole
+  concept and implementation.  I hope to get assistance from members
+  of Common Lisp Statistics and Antik groups.
+
+  The main activities are in ~cl-gog-syntax~ directory.
+
+
+* Everything below is out-dated
+
+  Incomplete implementation of Wilkinson's grammar of graphics, and of
+  a =gnuplot= graphics driver based on it.
+
+  Provides:
+  - Implementation of grammar elements in terms of =CLOS= classes
+    - Very incomplete
+  - Definitions of graphic driver interfaces in terms of =CLOS= classes
+    and generic functions
+    - Not implemented yet
+  - Graphic driver for =gnuplot=
+    - Uses /gnuplot-interface/ package and other packages
+    - Very incomplete
+    
+** Note:
+   =ggplot2= is an implementation of GG for the =R= language.  It
+   implements much of GG, and also adds some new features, such as
+   layers.
+   
 
 * What is not implemented and why
 ** Algebra of data
