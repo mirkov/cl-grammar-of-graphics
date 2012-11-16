@@ -3,31 +3,72 @@
 
 * Aim
 
-  This library implements Wilkinson's Grammar of Graphics in Common
-  Lisp.  It is currently under conceptual development.  Eventually,
-  it will contain
+  This library implements Leland Wilkinson's Grammar of Graphics (GoG)
+  in Common Lisp.  The main reference for the Grammar of Graphics is
+  the second edition of the book by the same name by Leland Wilkinson.
+  The examples in this book are given in terms of Graphic Production
+  Language (GPL), discussed in Chapter 18.  The main references for
+  the Graphics Production Language are several found in several SPSS
+  documents (links are included below).
 
-  - CL-GoG-syntax :: Definition of GoG syntax in Common Lisp
-  - GoG-parser :: Parser that will translate GoG forms into
+  The library is currently under conceptual development.  Eventually,
+  it will contain
+  - CL-GPL-syntax :: Definition of GPL syntax in Common Lisp
+  - GPL-parser :: Parser that will translate GPL forms into
                   statements for the back-end
+  - GoG-parser :: Parser that will translate a sequence of GPL forms
+                  into a GoG structure.  
   - GoG-back-end :: A library of functions that will facilitate
-                    generation of commands for various rendering libraries
+                    generation of commands for various rendering
+                    libraries
   - GoG-XYZ :: Libraries of hooks into various renderers
     
     
-  The main reference for the Grammar of Graphics is the second
-  edition of the book by the same name by Leland Wilkinson.
 
-* Purpose
+* What we are trying to accomplish -- in greater detail
+  
+  The original goal was to establish a framework for driving various
+  rendering engines through a flexible interface based on GPL and GoG.
+  With this goal in mind we are at liberty to implement the main ideas
+  of GoG and GPL, but feel free to implement some of GPL in terms of
+  common lisp constructs (see [[file:cl-gog-syntax/syntax/syntax.org][CL-GPL Syntax]]).
 
-  We will try to establish a framework for driving various rendering
-  engines through a flexible interface based on Grammar of Graphics
-  (GoG).
+  But GoG may have a ``deeper'' purpose.  As I re-read the book, I
+  wonder whether a ``graphic'' is a visual representation of raw-data,
+  processed in some form, from which we will draw some conclusions.
+  In that sense, the graphic specification is not just the
+  specification of an image on a display device, but also instructions
+  (or recipe per Wilkinson's example in Chapter 2) for re-creating
+  the image, and thus the conclusions that we want to reach.
 
-  Interestingly, Chapter 18 of the reference talks about automating
-  plot production, and defines a language for that purpose.  One
+  If so, we should strive to implement as many elements of GPL as
+  possible, even if there are CL functions that achieve the same goal.
+  Otherwise, we can stray too far from GPL/GoG and create graphics
+  specifications that are outside of the domain of GoG and that
+  violate its syntax.
+
+  I suspect that there will be considerable tension between these two
+  approaches.
+
+
+  Chapter 18 of the book talks about GPL's origin.  It was defined to
+  automate plot production at the US Bureau of Labor Statistics One
   could argue that CL with Antik, a GoG framework, and a link to
-  rendering software will be an excellent platform for this task.
+  rendering software will be an excellent platform for such a task.
+  
+
+* GPL documentation
+
+  The book gives an overview of GPL and GoG, but does not provide a
+  complete specification of all of GPL commands.  I found two
+  pdf documents describing GPL.  I am not including them in this
+  distribution, because I am not sure of their copyright status.  The
+  two documents are
+  - [[ftp://public.dhe.ibm.com/software/analytics/spss/documentation/statistics/20.0/en/client/Manuals/GPL_Reference_Guide_for_IBM_SPSS_Statistics.pdf][GPL Reference Guide for IBM SPSS Visualization Designer]],
+    copyrighted by IBM, 2011
+  - [[http://www.psychology.gatech.edu/psyc6019lab/SPSS%2520Manuals/GPL%2520Reference%2520Guide.pdf][GPL Reference Guide]], copyrighted by SPSS, 2005
+
+
 
 
 * Status

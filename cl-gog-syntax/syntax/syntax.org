@@ -1,20 +1,20 @@
-#+title: CL-GoG syntax
+#+title: CL-GPL syntax
 
-GOG syntax is discussed in Chapter 18 of the reference.
+GPL syntax is discussed in Chapter 18 of the reference and in to GPL
+references listed in README.
 
-CL-GOG syntax implements a subset of the GoG syntax.  It excludes the
-following
+CL-GPL may or may not implement some of GPL statements and functions.
+Candidates for exclusion include the following statements
 - ~comment~
-- ~data~ - we use ~let~
+- ~data~ we use ~let~ instead
 - ~do~ is used for looping.  Instead we use CL's facilities
+- ~trans~ - we can use built-in CL to transform the data
 
 
 For primitives, GoG uses strings, numbers or names.  Instead of
-names, we will use symbols.
+names, we will use symbols. 
 
 For the unity value, we use ~gog:+1+
 
 For GoG algebraic operators, we use ~gog:*~, ~gog:+~, ~gog:/~.
 
-CL-GoG does not implement the GoG's ~TRANS~ operator.  Instead we use
-CL's facilities.

@@ -1,5 +1,9 @@
-#+title: Examples of CL-GOG syntax
+#+title: Examples of CL-GPL syntax
 
+Examples both from the book and GPL guide.  The latter ones are more
+complete.
+
+* Examples from "The Grammar of Graphics" book
 To get a feel for CL implementation of the GoG, I rewrote some of the
 figures in a CL-like syntax.  Most of the figures use data from
 Wilkinon's [[http://www.cs.uic.edu/~wilkinson/TheGrammarOfGraphics/GOG.html][web site]].  The links in this file point to that data.
@@ -206,6 +210,27 @@ We use the ~let~ form to instantiate the variables ~response~ and
 Figure 11.15?
 
 
+** Chapter 9 -- Coordinates
+
+*** Rotation and reflection -- 9.1.1.2 & 9.1.1.3
+
+    Figures 9.2 9.4, 9.5 and 9.6 are examples of rotation and
+    reflection. The latter two are composites of the two operations.
+    Quoting, Fig 9.5
+    #+BEGIN_EXAMPLE
+    COORD: reflect(dim (1), rotate(dim(1,2), angle(270)))
+    ELEMENT: interval(position(gov*birth))
+    #+END_EXAMPLE
+    and Fig. 9.6
+    #+BEGIN_EXAMPLE
+    COORD: rotate(dim(1,2), angle(270), reflect(dim (1)))
+    ELEMENT: interval(position(gov*birth))
+    #+END_EXAMPLE
+    These examples imply that the ~reflect~ syntax is
+    ~reflect(dimension, rotation specification)~ and for rotation
+    ~rotate(axes, angle, reflection specification)~
+
+    To c
 ** Figure 10.34
 
    [[http://www.cs.uic.edu/~wilkinson/TheGrammarOfGraphics/planets.txt][Planet data]] (and not Fig. 7.38)
@@ -295,3 +320,59 @@ Figure 11.15?
         (element (polygon (position (* longitude latitude)
                                     :pattern :texture.pattern.dash)))))
    #+END_SRC
+
+
+* Examples from SPSS' guide to GPL
+
+  These examples are from Chapter 3 of the guide (see [[file:../../README.org::*GPL%20documentation][GPL
+  documentation]] for link).  The quality of these examples may be
+  better, because unlike the examples from the book, these are
+  complete specifications of each graphic.  Unfortunately, at this
+  time, I do not have the data files for the figures.  Thus it will
+  not be possible to test the final code against the figures in this
+  guide.
+
+** Simple Bar Chart
+   Figure 3-1.  First in GPL
+   #+BEGIN_EXAMPLE
+SOURCE: s=userSource(id("Employeedata"))
+DATA: jobcat=col(source(s), name("jobcat"), unit.category())
+DATA: salary=col(source(s), name("salary"))
+SCALE: linear(dim(2), include(0))
+GUIDE: axis(dim(2), label("Mean Salary"))
+GUIDE: axis(dim(1), label("Job Category"))
+ELEMENT: interval(position(summary.mean(jobcat*salary)))
+   #+END_EXAMPLE
+
+   and then in CL-GPL
+   #+BEGIN_SRC lisp
+     (gpl
+      (SOURCE s (userSource (id ("Employeedata"))))
+      (DATA jobcat (col (source s) (name "jobcat") (unit.category)))
+      (DATA salary (col (source s) (name "salary")))
+      (SCALE (linear (dim 2) (include 0)))
+      (GUIDE (axis (dim 2) (label "Mean Salary")))
+      (GUIDE (axis (dim 1) (label "Job Category")))
+      (ELEMENT (interval (position (summary.mean jobcat*salary)))))
+   #+END_SRC
+** Simple Bar Chart of Counts
+   Figure 3-3
+   GPL for simple bar chart of counts
+#+BEGIN_EXAMPLE
+SOURCE: s=userSource(id("Employeedata"))
+DATA: jobcat=col(source(s), name("jobcat"), unit.category())
+SCALE: linear(dim(2), include(0))
+GUIDE: axis(dim(2), label("Count"))
+GUIDE: axis(dim(1), label("Job Category"))
+ELEMENT: interval(position(summary.count(jobcat)))
+#+END_EXAMPLE
+   #+BEGIN_SRC lisp
+     (gpl
+      (SOURCE s (userSource (id ("Employeedata"))))
+      (DATA jobcat (col (source s) (name "jobcat") (unit.category)))
+      (SCALE (linear (dim 2) (include 0)))
+      (GUIDE (axis (dim 2) (label "Count")))
+      (GUIDE (axis (dim 1) (label "Job Category")))
+      (ELEMENT (interval (position (summary.count jobcat)))))
+   #+END_SRC
+   
