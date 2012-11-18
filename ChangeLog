@@ -1,3 +1,11 @@
+2012-11-17  Mirko Vukovic  <mirko.vukovic@us.tel.com>
+
+	* README.org: More on software organization.  Cleaned up reference
+	documentation.
+
+	* cl-gog-syntax/examples/examples.org (ELEMENT): Added a CLOS
+	implementation to Simple Bar Chart example
+
 2012-11-15  Mirko Vukovic  <mirko.vukovic@us.tel.com>
 
 	* README.org: Added text and references to GPL

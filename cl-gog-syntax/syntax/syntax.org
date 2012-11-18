@@ -1,20 +1,25 @@
 #+title: CL-GPL syntax
 
-GPL syntax is discussed in Chapter 18 of the reference and in to GPL
-references listed in README.
+* Background
+  GPL syntax is discussed in Chapter 18 of the reference and in the
+  GPL references listed in README.
 
-CL-GPL may or may not implement some of GPL statements and functions.
-Candidates for exclusion include the following statements
-- ~comment~
-- ~data~ we use ~let~ instead
-- ~do~ is used for looping.  Instead we use CL's facilities
-- ~trans~ - we can use built-in CL to transform the data
+  
 
+* What parts of GoG and GPL are we going to implement?
 
-For primitives, GoG uses strings, numbers or names.  Instead of
-names, we will use symbols. 
+  CL-GPL may or may not implement some of GPL statements and
+  functions.  Candidates for exclusion include the following
+  statements
+  - ~comment~
+  - ~data~ -- we could use ~let~ instead
+  - ~do~ is used for looping.  Instead we use CL's facilities
+  - ~trans~ -- we can use functions defined in CL to transform the data
 
-For the unity value, we use ~gog:+1+
+  For primitives, GoG uses strings, numbers or names.  Instead of
+  names, we will use symbols. 
 
-For GoG algebraic operators, we use ~gog:*~, ~gog:+~, ~gog:/~.
+  For the unity value, we use ~gog:+1+
+
+  For GoG algebraic operators, we use ~gog:*~, ~gog:+~, ~gog:/~.
 

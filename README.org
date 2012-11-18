@@ -1,5 +1,9 @@
 #+title: common-lisp interpretation to grammar-of-graphics
 
+* Warning
+  No coding done yet.  Currently reading references, thinking and
+  writing about how to implement GoG.  All action is in
+  ~cl-gog-syntax~ directory.
 
 * Aim
 
@@ -14,13 +18,14 @@
   The library is currently under conceptual development.  Eventually,
   it will contain
   - CL-GPL-syntax :: Definition of GPL syntax in Common Lisp
-  - GPL-parser :: Parser that will translate GPL forms into
-                  statements for the back-end
-  - GoG-parser :: Parser that will translate a sequence of GPL forms
-                  into a GoG structure.  
-  - GoG-back-end :: A library of functions that will facilitate
-                    generation of commands for various rendering
-                    libraries
+  - GoG-parser :: Parser that will translate GoG forms into
+                  instructions to generate CLOS objects
+  - GoG-CLOS :: All of GoG specifications will be stored as CLOS
+                objects
+  - GoG-back-end :: A library of functions for querying GoG-CLOS
+                    objects.  It will facilitate generation of
+                    commands for various rendering libraries.  It may
+                    also contain other facilities, to be determined.
   - GoG-XYZ :: Libraries of hooks into various renderers
     
     
@@ -50,9 +55,8 @@
   I suspect that there will be considerable tension between these two
   approaches.
 
-
   Chapter 18 of the book talks about GPL's origin.  It was defined to
-  automate plot production at the US Bureau of Labor Statistics One
+  automate plot production at the US Bureau of Labor Statistics.  One
   could argue that CL with Antik, a GoG framework, and a link to
   rendering software will be an excellent platform for such a task.
   
@@ -60,14 +64,10 @@
 * GPL documentation
 
   The book gives an overview of GPL and GoG, but does not provide a
-  complete specification of all of GPL commands.  I found two
-  pdf documents describing GPL.  I am not including them in this
-  distribution, because I am not sure of their copyright status.  The
-  two documents are
-  - [[ftp://public.dhe.ibm.com/software/analytics/spss/documentation/statistics/20.0/en/client/Manuals/GPL_Reference_Guide_for_IBM_SPSS_Statistics.pdf][GPL Reference Guide for IBM SPSS Visualization Designer]],
-    copyrighted by IBM, 2011
-  - [[http://www.psychology.gatech.edu/psyc6019lab/SPSS%2520Manuals/GPL%2520Reference%2520Guide.pdf][GPL Reference Guide]], copyrighted by SPSS, 2005
-
+  complete specification of all of GPL commands.  I found two pdf
+  documents describing GPL (see [[*References][References]]).  I am not including them
+  in this distribution, because I am not sure of their copyright
+  status.
 
 
 
@@ -82,6 +82,17 @@
   of Common Lisp Statistics and Antik groups.
 
   The main activities are in ~cl-gog-syntax~ directory.
+
+
+* References
+  The main references for this software are:
+  - Grammar of Graphics by Leland Wilkinson defines the grammar
+  - [[ftp://public.dhe.ibm.com/software/analytics/spss/documentation/statistics/20.0/en/client/Manuals/GPL_Reference_Guide_for_IBM_SPSS_Statistics.pdf][GPL Reference Guide for IBM SPSS Visualization Designer]],
+    copyrighted by IBM, 2011
+  - [[http://www.psychology.gatech.edu/psyc6019lab/SPSS%2520Manuals/GPL%2520Reference%2520Guide.pdf][GPL Reference Guide]], copyrighted by SPSS, 2005
+  - ggplot http://had.co.nz/ggplot/ by Hadley Wickham uses (and extends
+    Wilkinson's grammar) to implement R's ggplot plotting package
+  - gnuplot: http://www.gnuplot.info/
 
 
 * Everything below is out-dated
@@ -151,9 +162,3 @@
   not be able to follow all of the gg specifications.
 
 
-* References
-  The main references for this software are:
-  - Grammar of Graphics by Leland Wilkinson defines the grammar
-  - ggplot http://had.co.nz/ggplot/ by Hadley Wickham uses (and extends
-    Wilkinson's grammar) to implement R's ggplot plotting package
-  - gnuplot: http://www.gnuplot.info/

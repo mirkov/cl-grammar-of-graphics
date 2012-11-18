@@ -355,6 +355,25 @@ ELEMENT: interval(position(summary.mean(jobcat*salary)))
       (GUIDE (axis (dim 1) (label "Job Category")))
       (ELEMENT (interval (position (summary.mean jobcat*salary)))))
    #+END_SRC
+
+   When translated to CL, we get a ~gog:graphic~ object that contains
+   the specification.
+   #+BEGIN_SRC lisp
+     (let* ((graphic (make-graphic))
+            (source (make-source 'userSource :ID "Emplyeedata"))
+            (jobcat (make-data 'col (list source "jobcat")
+                              :unit 'category))
+            (salary (make-data 'col (list source "salary")))
+            (scale (make-scale 'linear :dim 2 :include '(0)))
+            (guide-y (make-axis 'dim 2 :label "Mean Salary"))
+            (guide-x (make-axis 'dim 1 :label "Job Category"))
+            (element (make-element 'interval (position (summary.mean
+                                                        (gog-algebra '(* jobcat salary)))))))
+       (add-to-graphic graphic
+                       source jobcat salary scale guide-y guide-x element)
+       graphic)
+   #+END_SRC
+
 ** Simple Bar Chart of Counts
    Figure 3-3
    GPL for simple bar chart of counts
