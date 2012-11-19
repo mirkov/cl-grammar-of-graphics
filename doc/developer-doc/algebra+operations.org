@@ -1,0 +1,50 @@
+#+title: CLOS interpretation of algebra
+
+* Introduction and background
+
+  On the user lever, we may use GoG Algebra expressions such ~(/ (* (+
+  (/ A E) B) C) D)~.  Internally, this will translate into something
+  else.  Currently my thinking is to use objects of class
+  ~algebra-term~.  The above expression will be equivalent to
+  #+BEGIN_SRC lisp
+      (list (make-instance 'algebra-term
+                           :terms (list A C)
+                           :tags (list E D))
+            (make-instance 'algebra-term
+                           :terms (list B C)
+                           :tags (list D)))
+  #+END_SRC
+
+* ~algebra-term~ class and objects
+
+  Rules of valid algebra expressions are discussed in Section 5.1.4.1
+  of The GoG book.  The ~algebra-term~ object will contain the
+  definition of one term.  An algebra form is a list of one or more
+  ~algebra-term~s.
+
+  The ~algebra-term~ provides the following functionality:
+  - Augment order by the ~1~ constant
+  - Walk the variables, returning n-dimensional tuples for select
+    dimensions and tag values
+  - Reset the walker
+  - Provide diagnostic information such as order, number of factors,
+    tags, etc
+
+
+* Terms and tags as ~algebra-factor~ objects
+
+  The terms and tags can be any of the following
+  - Vector of values
+  - Column in a matrix or multi-dimensional array
+  - Column in a file
+  - A constant (numerical, string, symbol)
+    
+    
+  Each of these is stored in an ~algebra-factor~ class.  Members of
+  this class provide the following functionality:
+  - Walk along variable values
+  - Reset the walker
+  - Diagnostic information
+
+  
+* 
