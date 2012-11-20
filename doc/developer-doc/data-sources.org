@@ -1,0 +1,41 @@
+#+title: ~data-source~ class and objects 
+
+* Introduction
+
+  ~data-source~ codifies the behavior and methods of data sources.
+  Data sources can be of following types:
+  - Text files, such as ~csv~
+  - Variables, such as vectors, matrices, arrays, hashes, etc
+  - Other
+    
+
+* Role of  ~data-source~ in accessing multiple columns in a file
+    
+  The purpose for ~data-source~'s is primarily to facilitate the case
+  of returning multiple columns from a text file.  For example,
+  consider a term with two factors, each a column from the same
+  file.  We could read the file and store the column values in a
+  variable, passing the variable to functions such as ~position~.
+
+  Or, we can read the file a record at a time, and feed the column
+  value to build each term, one tuple at a time, feeding it to
+  ~position~.  In this approach, ~data-source~ reads and stores the
+  record.  ~algebra-factor~'s ask the ~data-source~ for the column
+  values.
+
+  The fundamental assumption in this model is that the file will be
+  traversed in a parallel fashion: the requests from
+  ~algebra-factor~'s will always refer to data from the same record,
+  or maybe from the next one.  When an ~algebra-factor~ requests data
+  from the next record, it is assumed that this current record will
+  not be needed (that is until we process the next ~algebra-term~).
+
+  Right now, I see only this case ~algebra-factor~ that use column
+  data as requiring the ~data-source~ functionality.  Terms that use
+  CL's variables can access their data easily enough.  However, to
+  insure a uniform interface, all ~data~ statements will return a
+  ~data-source~.
+  
+    
+    
+  

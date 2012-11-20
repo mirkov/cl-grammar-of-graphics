@@ -47,4 +47,7 @@
   - Diagnostic information
 
   
-* 
+* Handling of column files
+
+  For handling of factors whose data comes from a file see the
+  discussion related to [[file:data-sources.org][data-source]] classes.
